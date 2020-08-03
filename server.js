@@ -24,10 +24,11 @@ function attemptAuth(req){
     }
 }
 
-
 //MySQL
 var mysql = require('mysql');
 const { response } = require('express');
+const { isNull } = require('util');
+const { writer } = require('repl');
 var con = mysql.createConnection({
       host: 'localhost',
 	  user: 'root',
@@ -122,6 +123,40 @@ app.post('/users/login', async (req, res) => {
 })
 
 //OPERAZIONI CRUD
+//CREATE
+app.post('/pianta', (req, res) => {
+    try{
+	if(!req.accepts('application/json')) {
+		res.sendStatus(406).end();
+		return;
+    }
+    if(!attemptAuth(req)) {
+		res.sendStatus(401).end();
+		return;
+    }
+
+    const clima = req.body.clima;    
+    const nome = req.body.name;
+    const latin = req.body.latin;
+
+	console.log("Recieve Post request for Pianta, name: "+nome);
+    
+	var sql = "INSERT INTO `tipo_pianta`(`Fascia_climatica`, `Nome_latino`, `Nome_comune`) VALUES ('"+clima+"','"+latin+"','"+nome+"')";
+	
+	con.query(sql, function (err, result) {
+        if (err) {throw err;}
+        console.log(result);
+        res.sendStatus(200).end();
+	});
+    return;
+    }
+    catch{
+        res.sendStatus(401).end();
+    return;
+    }
+});
+
+//READ
 app.get('/pianta', (req, res) => {
     try{
 	if(!req.accepts('application/json')) {
@@ -141,8 +176,45 @@ app.get('/pianta', (req, res) => {
 	
 	con.query(sql, function (err, result) {
         if (err) {throw err;}
+        if(result.length < 1){
+            console.log('Empty');
+            res.sendStatus(404).end();
+            return;
+        }
         console.log(result);
+        res.set('content-type', 'application/json');
         res.send(result).end();
+	});
+    return;
+    }
+    catch{
+        res.sendStatus(404).end();
+    return;
+    }
+});
+
+//UPDATE
+app.put('/pianta/c_name', (req, res) => {
+    try{
+	if(!req.accepts('application/json')) {
+		res.sendStatus(406).end();
+		return;
+    }
+    if(!attemptAuth(req)) {
+		res.sendStatus(401).end();
+		return;
+    }
+
+    const nome = req.body.name;
+    const newname = req.body.newname;
+
+	console.log("Recieve Put request for Pianta, name: "+nome);
+	var sql = "UPDATE `tipo_pianta` SET `Nome_comune`='"+newname+"' WHERE Nome_comune ='"+nome+"'";
+	
+	con.query(sql, function (err, result) {
+        if (err) {throw err;}
+        console.log(result);
+        res.sendStatus(200).end();
 	});
     return;
     }
@@ -151,6 +223,37 @@ app.get('/pianta', (req, res) => {
     return;
     }
 });
+
+//DELETE
+app.delete('/pianta', (req, res) => {
+    try{
+	if(!req.accepts('application/json')) {
+		res.sendStatus(406).end();
+		return;
+    }
+    if(!attemptAuth(req)) {
+		res.sendStatus(401).end();
+		return;
+    }
+
+    const nome = req.body.name;
+
+	console.log("Recieve Post request for Pianta, name: "+nome);
+	var sql = "DELETE FROM `tipo_pianta`  WHERE Nome_comune ='"+nome+"' OR Nome_latino = '"+nome+"'";
+	
+	con.query(sql, function (err, result) {
+        if (err) {throw err;}
+        console.log(result);
+        res.sendStatus(200).end();
+	});
+    return;
+    }
+    catch{
+        res.sendStatus(401).end();
+    return;
+    }
+});
+
 
 //RICHIESTA ESTERNA OPENWEATHERMAP
 app.get('/weather', (req, res) => {
@@ -166,9 +269,9 @@ app.get('/weather', (req, res) => {
     const city = req.body.city;
     var resp = '';
         
-    var options = {
+    const options = {
         host: 'api.openweathermap.org',
-        path: '/data/2.5/weather?q='+city+',it&appid=7ad91403d31e02346838138e8f0506f3&units=metric'
+        path: '/data/2.5/weather?q='+city+',it&appid=7ad91403d31e02346838138e8f0506f3&units=metric',
     };
         
     callback = function(response) {
@@ -180,6 +283,7 @@ app.get('/weather', (req, res) => {
     //the whole response has been received, so we just print it out here
     response.on('end', function () {
         console.log(resp);
+        res.set('content-type', 'application/json');
         res.send(resp).end();
     });
     }
