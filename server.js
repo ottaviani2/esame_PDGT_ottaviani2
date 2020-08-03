@@ -3,23 +3,17 @@ const app = express();
 const bcrypt = require('bcrypt');
 const bodyparser = require('body-parser');
 const cookieparser = require("cookie-parser");
+const http = require('http');
 
 app.use(express.json())
 app.use(bodyparser.json())
 app.use(cookieparser());
 
 //LOGIN
-const login = new Map();
 const cookies = new Map();
 
-//login con cookies
+//LOIGN CON COOKIES
 function attemptAuth(req){
-    //console.log("Authentication header: "+req.headers.authorization);
-   
-    //console.log("Cookies: "+ JSON.stringify(req.cookies.auth));
-    //console.log(cookies.get(req.cookies.auth));
-
-
     if(req.cookies.auth){
         if(cookies.has(req.cookies.auth)){
             const user = JSON.stringify(cookies.get(req.cookies.auth));
@@ -28,32 +22,10 @@ function attemptAuth(req){
         }
         return false;
     }
-    /*
-    if(!req.headers.authorization){
-        return false;
-    }
-    if(!req.headers.aurthorization.startWith('Basic')){
-        return false;
-    }
-    
-    const auth = req.headers.authorization.substr(6);
-    const decoded = new Buffer(auth, 'base64').toString();
-    const[login, password] = decoded.split(':');
-    
-    console.log("Login: "+login+", password:"+password)
-        .sendStatus(401)
-        .end();
-
-    */
 }
 
-function attemptLogin(mail){
-    if(!logins.has(mail)){
-        return false;
-    }
-    return true;
-}
 
+//MySQL
 var mysql = require('mysql');
 const { response } = require('express');
 var con = mysql.createConnection({
@@ -71,6 +43,10 @@ con.connect((error) => {
 });
 
 app.get('/users', (req, res) => {
+    if(!attemptAuth(req)) {
+		res.sendStatus(401).end();
+		return;
+    }
     try{
         var sql ="SELECT * FROM `utenti`";
 
@@ -145,7 +121,7 @@ app.post('/users/login', async (req, res) => {
     }
 })
 
-//operazioni CRUD
+//OPERAZIONI CRUD
 app.get('/pianta', (req, res) => {
     try{
 	if(!req.accepts('application/json')) {
@@ -165,17 +141,54 @@ app.get('/pianta', (req, res) => {
 	
 	con.query(sql, function (err, result) {
         if (err) {throw err;}
-		console.log(result);
+        console.log(result);
+        res.send(result).end();
 	});
-	
-    res.sendStatus(200).end();
     return;
     }
     catch{
         res.sendStatus(401).end();
     return;
     }
-	//data è un oggetto map con i dati estratti dal db
 });
+
+//RICHIESTA ESTERNA OPENWEATHERMAP
+app.get('/weather', (req, res) => {
+    if(!req.accepts('application/json')) {
+		res.sendStatus(406).end();
+		return;
+    }
+    if(!attemptAuth(req)) {
+		res.sendStatus(401).end();
+		return;
+    }
+    try{
+    const city = req.body.city;
+    var resp = '';
+        
+    var options = {
+        host: 'api.openweathermap.org',
+        path: '/data/2.5/weather?q='+city+',it&appid=7ad91403d31e02346838138e8f0506f3&units=metric'
+    };
+        
+    callback = function(response) {
+        //another chunk of data has been received, so append it to `str`
+        response.on('data', function (chunk) {
+        resp += chunk;
+    });
+      
+    //the whole response has been received, so we just print it out here
+    response.on('end', function () {
+        console.log(resp);
+        res.send(resp).end();
+    });
+    }
+      
+    http.request(options, callback).end();
+    }catch{
+        res.sendStatus(401).end();
+    }
+})
+
 
 app.listen(3000, ()=>console.log("Express server is running at port no: 3000"))
