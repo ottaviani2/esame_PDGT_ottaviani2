@@ -49,7 +49,7 @@ app.get('/users', (req, res) => {
 		return;
     }
     try{
-        var sql ="SELECT * FROM `utenti`";
+        var sql ="SELECT mail FROM `utenti`";
 
 	    con.query(sql, function (err, result) {
             if (err) throw err;
@@ -172,7 +172,7 @@ app.get('/pianta', (req, res) => {
 
 	console.log("Recieve Get request for Pianta, name: "+nome);
 	
-	var sql = "SELECT Lotto, ubicazione.Descrizione, lotto.Quantita_arrivo, (CURRENT_DATE()-Data_arrivo) AS Eta, lotto.Prezzo_vendita FROM pianta_ubicata JOIN lotto ON pianta_ubicata.Lotto = lotto.Codice_lotto JOIN tipo_pianta ON tipo_pianta.Codice_tipo = lotto.Tipo_pianta JOIN ubicazione ON pianta_ubicata.Ubicazione = ubicazione.Codice_ubicazione WHERE tipo_pianta.Nome_comune = '"+nome+"' OR tipo_pianta.Nome_latino = '"+nome+"'";
+	var sql = "SELECT Lotto, ubicazione.Descrizione, Quantita, (CURRENT_DATE()-Data_arrivo) AS Eta, lotto.Prezzo_vendita FROM pianta_ubicata JOIN lotto ON pianta_ubicata.Lotto = lotto.Codice_lotto JOIN tipo_pianta ON tipo_pianta.Codice_tipo = lotto.Tipo_pianta JOIN ubicazione ON pianta_ubicata.Ubicazione = ubicazione.Codice_ubicazione WHERE tipo_pianta.Nome_comune = '"+nome+"' OR tipo_pianta.Nome_latino = '"+nome+"'";
 	
 	con.query(sql, function (err, result) {
         if (err) {throw err;}
