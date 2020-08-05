@@ -1,0 +1,101 @@
+Formato delle richieste http
+
+Tutti i parametri sono trasmessi in JSON.
+Tutte le risposte del server sono in JSON.
+
+
+-> LISTA UTENTI
+
+METODO --GET--
+
+/users
+
+
+-> RICHIESTA A SERVIZIO ESTERNO OPENWEATHERMAP
+Restituisce i parametri climatici come umidità, pressione, temperatura, durata della giornata.
+Funziona solo per città italiane.
+
+/weather
+
+{
+  'city' : 'città'
+}
+
+
+-> INSERIRE UN NUOVO UTENTE
+
+METODO --POST--
+
+/users
+
+{
+  'name' : 'name',
+  'password' : 'password'
+}
+
+
+-> LOGIN
+
+METODO --POST--
+
+/users/login
+
+{
+  'name' : 'name',
+  'password' : 'password'
+}
+
+
+OPERAZIONI CRUD
+
+-> INSERIRE UNA NUOVA PIANTA
+
+METODO --POST--
+
+/pianta
+
+{
+  'name' : 'nome comune',
+  'latin' : 'nome latino',
+  'clima' : 'tipo di fascia climatica' (**)
+}
+
+(**) il tipo di fascia climatica è un id collegato ad un 
+     altra tabella quindi va inserito un id esistente.
+
+
+-> SAPERE DOVE SONO LE PIANTE DI UN TIPO
+
+METODO --GET--
+
+/pianta
+
+{
+  'name' : 'nome pianta'
+}
+
+
+-> AGGIORNARE IL NOME DI UNA PIANTA
+Aggiorna solo il nome comune
+
+METODO --PUT--
+
+/pianta/c_name
+
+{
+  'name' : 'nome da aggiornare',
+  'newname' : 'nuovo nome'
+}
+
+
+-> ELIMINARE UNA PIANTA
+
+METODO --DELETE--
+
+/pianta
+
+{
+  'name' : 'nome pianta'
+}
+
+
