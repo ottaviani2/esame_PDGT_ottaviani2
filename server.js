@@ -53,7 +53,7 @@ app.get('/users', (req, res) => {
 
 	    con.query(sql, function (err, result) {
             if (err) throw err;
-            
+            console.log(result);
             res.json(result)
         });
     } catch {
@@ -68,10 +68,6 @@ app.post('/users', async (req, res) => {
             return;
         }
         console.log("richiesta inserimento nuovo utente "+ req.body.name);
-       // const salt = await bcrypt.genSalt()
-        //const hashedPassword = await bcrypt.hash(req.body.password, salt)
-        //console.log(salt)
-        //console.log(hashedPassword)
 
         var sql ="INSERT INTO `utenti`(`mail`, `password`) VALUES ('"+req.body.name+"',PASSWORD('"+req.body.password+"'))";
 
@@ -135,13 +131,14 @@ app.post('/pianta', (req, res) => {
 		return;
     }
 
+    const id = req.body.id;
     const clima = req.body.clima;    
     const nome = req.body.name;
     const latin = req.body.latin;
 
 	console.log("Recieve Post request for Pianta, name: "+nome);
     
-	var sql = "INSERT INTO `tipo_pianta`(`Fascia_climatica`, `Nome_latino`, `Nome_comune`) VALUES ('"+clima+"','"+latin+"','"+nome+"')";
+	var sql = "INSERT INTO `tipo_pianta`(`Codice_tipo`,`Fascia_climatica`, `Nome_latino`, `Nome_comune`) VALUES ('"+id+"','"+clima+"','"+latin+"','"+nome+"')";
 	
 	con.query(sql, function (err, result) {
         if (err) {throw err;}
@@ -170,6 +167,7 @@ app.get('/pianta', (req, res) => {
 
     const nome = req.body.name;
 
+    console.log(req.headers);
 	console.log("Recieve Get request for Pianta, name: "+nome);
 	
 	var sql = "SELECT Lotto, ubicazione.Descrizione, Quantita, (CURRENT_DATE()-Data_arrivo) AS Eta, lotto.Prezzo_vendita FROM pianta_ubicata JOIN lotto ON pianta_ubicata.Lotto = lotto.Codice_lotto JOIN tipo_pianta ON tipo_pianta.Codice_tipo = lotto.Tipo_pianta JOIN ubicazione ON pianta_ubicata.Ubicazione = ubicazione.Codice_ubicazione WHERE tipo_pianta.Nome_comune = '"+nome+"' OR tipo_pianta.Nome_latino = '"+nome+"'";
@@ -275,16 +273,16 @@ app.get('/weather', (req, res) => {
     };
         
     callback = function(response) {
-        //another chunk of data has been received, so append it to `str`
+
         response.on('data', function (chunk) {
         resp += chunk;
     });
       
     //the whole response has been received, so we just print it out here
     response.on('end', function () {
-        console.log(resp);
         res.set('content-type', 'application/json');
         res.send(resp).end();
+        console.log(resp);
     });
     }
       
@@ -294,5 +292,5 @@ app.get('/weather', (req, res) => {
     }
 })
 
-
+//caricare la porta dalle variabili di ambiente di Heroku process.env.PORT
 app.listen(3000, ()=>console.log("Express server is running at port no: 3000"))

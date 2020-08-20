@@ -55,6 +55,7 @@ METODO --POST--
 /pianta
 
 {
+  'id' : 'id',	
   'name' : 'nome comune',
   'latin' : 'nome latino',
   'clima' : 'tipo di fascia climatica' (**)
