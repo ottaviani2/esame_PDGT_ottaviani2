@@ -1,6 +1,5 @@
 var http = require('follow-redirects').http;
 //const http = require('http');
-const readline = require('readline');
 var request = require('request');
 
 var menuHandler;
@@ -225,7 +224,24 @@ function update_pianta(){
   req.end();
 }
 
+//ELIMINA PIANTA
+function delete_pianta(){
+  console.log('\n'+'Elimina Pianta');
+  
+  var options = {
+    'method': 'DELETE',
+    'url': 'http://localhost:3000/pianta',
+    'headers': {
+      'Content-Type': 'application/json',
+      'Cookie': 'auth='+my_cookie
+    },
+    body: JSON.stringify({"name":"Cactus"})
+  };
+  request(options, function (error, response) {
+    if (error) throw new Error(error);
+    console.log(response.body);
+  });
+}
+
+
 Initialize();
-
-
-

@@ -105,8 +105,6 @@ app.post('/users/login', async (req, res) => {
         }else{
             cookies.set(sessionId,{ mail: username});
             res.cookie('auth', sessionId);
-            //login.set(result[0].id, {mail: username, password: result[0].password})
-            //const user = login.get(result[0].id)
             res.status(200).send('You are logged in').end()
             return;
         }     
