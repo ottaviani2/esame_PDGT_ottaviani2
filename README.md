@@ -4,7 +4,9 @@ Nome progetto: Vivaio
 
 Note:
 Il server è attivo all'indirizzo: https://morning-temple-86022.herokuapp.com
+
 Il client è disponibile nella repository github: https://github.com/ottaviani2/client_esame.git
+
 Il server funzionante su heroku è disponibile nella repository github: https://github.com/ottaviani2/server_esame_heroku.git
 
 
