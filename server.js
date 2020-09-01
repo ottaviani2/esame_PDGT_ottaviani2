@@ -1,6 +1,10 @@
 const express = require('express');
 const app = express();
+<<<<<<< .merge_file_a81316
 const bcrypt = require('bcryptjs');
+=======
+//const bcrypt = require('bcryptjs');
+>>>>>>> .merge_file_a84636
 const bodyparser = require('body-parser');
 const cookieparser = require("cookie-parser");
 const http = require('http');
@@ -91,9 +95,9 @@ app.post('/users/login', async (req, res) => {
     const password = req.body.password;
 
     //genera il codice cookie
-    const salt = await bcrypt.genSalt();
-    const sessionId = await bcrypt.hash(password, salt);
-
+    //const salt = await bcrypt.genSalt();
+    //const sessionId = await bcrypt.hash(password, salt);
+    const sessionId = "1234";
     console.log("richiesta login "+username);
 
     var sql ="SELECT id, mail, password from utenti where mail = '"+username+"' AND Password = PASSWORD('"+password+"')";
@@ -291,4 +295,4 @@ app.get('/weather', (req, res) => {
 })
 
 //caricare la porta dalle variabili di ambiente di Heroku process.env.PORT
-app.listen(3000, ()=>console.log("Express server is running at port no: 3000"))
+app.listen(process.env.PORT, ()=>console.log("Express server is running"))
